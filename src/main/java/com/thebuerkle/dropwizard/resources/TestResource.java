@@ -3,6 +3,7 @@ package com.thebuerkle.dropwizard.resources;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
@@ -34,11 +35,18 @@ public class TestResource {
 
     @Path("/consume")
     @GET
-    public void consume() {
+    public void consume(@QueryParam("string") boolean asString) {
         WebTarget target = _client.target("http://localhost:8080/produce");
         Invocation.Builder invocation = target.request(MediaType.APPLICATION_JSON);
         Response response = invocation.get();
 
-        log.info(response.readEntity(Car.class).toString());
+        log.info("Status code: " + Response.Status.fromStatusCode(response.getStatus()));
+
+        if (asString) {
+            log.info("Response as string: " + response.readEntity(String.class));
+        }
+        else {
+            log.info("Response as car: " + response.readEntity(Car.class).toString());
+        }
     }
 }
